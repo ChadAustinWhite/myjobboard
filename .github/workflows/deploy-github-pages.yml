@@ -33,6 +33,8 @@ jobs:
       - name: Install and build
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
+          # Optional: Cloudflare Worker base URL wiring Indeed Publisher search (see workers/indeed-proxy/).
+          VITE_INDEED_PROXY_URL: ${{ secrets.VITE_INDEED_PROXY_URL }}
         run: |
           npm ci
           npx tsc --noEmit

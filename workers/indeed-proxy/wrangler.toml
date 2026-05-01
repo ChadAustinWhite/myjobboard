@@ -1,0 +1,9 @@
+# Deploy: cd workers/indeed-proxy && npx wrangler deploy
+# Secrets: wrangler secret put INDEED_PUBLISHER_ID
+name = "myjobboard-indeed-proxy"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Comma-separated https origins allowed to call this worker (browsers cannot bypass this for same-site).
+ALLOW_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173,https://chadaustinwhite.github.io"

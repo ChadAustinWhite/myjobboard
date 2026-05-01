@@ -139,13 +139,22 @@ export function RightRail({
             >
               Remote OK&apos;s JSON API
             </a>
-            . Roles are narrowed to postings that materially target the United States labour market plus
-            distributed remote gigs that are not plainly EU/APAC-exclusive. Throttle refreshes—the public
-            boards rate-limit abusive polling.
+            . Optional&nbsp;
+            <a
+              className="text-sky-400 hover:underline"
+              href="https://www.indeed.com/intl/en_US/terms"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Indeed
+            </a>
+            &nbsp;results load only when you deploy the included Cloudflare Worker proxy and configure the
+            <span className="mx-1 font-mono text-[11px] text-neutral-600">VITE_INDEED_PROXY_URL</span>
+            build variable to that URL (Publisher IDs never ship inside the SPA). LinkedIn postings have no
+            sanctioned public-search API suitable for hobby job boards—only partner programs qualify.
           </p>
           <p className="mt-2 text-[12px] text-neutral-700">
-            Listing URLs point back to Remotive / Remote OK / Arbeitnow-hosted pages where their API terms
-            require it.
+            Listing URLs point back to each board—follow each provider&apos;s linking and attribution rules.
           </p>
         </div>
       </div>
