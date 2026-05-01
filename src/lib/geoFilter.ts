@@ -22,6 +22,12 @@ function mentionsUsSignals(t: string): boolean {
   )
     return true;
 
+  /** US city + state shorthand like “Chicago, IL” or “Boston, Ma” after lowercasing */
+  if (
+    /,\s*(al|ak|az|ar|ca|co|ct|dc|de|fl|ga|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|ne|nh|nj|nm|nv|ny|oh|ok|or|pa|pr|ri|sc|sd|tn|tx|ut|va|vt|wa|wi|wv|wy)\b/.test(t)
+  )
+    return true;
+
   /** Common shorthand cities / tech hubs inside the United States */
   if (
     /\b(silicon\s+valley|san francisco\b|los\s+angeles\b|greater\s+nyc\b|bay\s+area|greater\s+boston|greater\s+seattle|salt\s+lake\s+city|salt\s+lake\b|columbus,\s+ohio|greater\s+rdu\b|\brdu\b|research\s+triangle)\b/.test(t)

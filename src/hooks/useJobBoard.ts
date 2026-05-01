@@ -218,19 +218,47 @@ export function useJobBoard() {
         }
 
         const errors = Object.entries(agg.errors).filter(([, v]) => v);
-        const failedAll = errors.length >= 2 && agg.jobs.length === 0;
+        const failedSources = errors.length >= 2;
+        const sampled = fallbackSeedJobs.filter(geoMatchesUnitedStatesFocus);
 
         let merged = agg.jobs;
+        let usedFallback = false;
 
-        if (failedAll) {
-          merged = fallbackSeedJobs.filter(geoMatchesUnitedStatesFocus);
+        if (failedSources && agg.jobs.length === 0) {
+          merged = sampled;
+          usedFallback = true;
           toast(
             "Live boards unavailable",
             "Showing saved sample roles until the network recovers.",
           );
+        } else if (merged.length === 0) {
+          merged = sampled;
+          usedFallback = true;
+          try {
+            if (!sessionStorage.getItem("mb:toast-live-empty-once")) {
+              sessionStorage.setItem("mb:toast-live-empty-once", "1");
+              toast(
+                "Showing sample roles",
+                "Live feeds returned no postings that matched UX + geography filters—we’ll retry on the next refresh.",
+              );
+            }
+          } catch {
+            toast(
+              "Showing sample roles",
+              "Nothing from the APIs matched UX + geography filters right now.",
+            );
+          }
         } else if (errors.length) {
           const detail = errors.map(([k, v]) => `${k}: ${v}`).join(" · ");
           toast("Partial sync", detail);
+        }
+
+        if (agg.jobs.length) {
+          try {
+            sessionStorage.removeItem("mb:toast-live-empty-once");
+          } catch {
+            /* ignore privacy mode */
+          }
         }
 
         const ids = new Set(merged.map((j) => j.id));
@@ -249,7 +277,7 @@ export function useJobBoard() {
         setSync({
           phase: "ok",
           fetchedAt: agg.fetchedAt,
-          usedFallback: failedAll,
+          usedFallback,
         });
       } catch (e: unknown) {
         if (signal?.aborted || isAbort(e)) {
