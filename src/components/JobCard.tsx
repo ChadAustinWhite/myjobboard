@@ -33,7 +33,7 @@ export function JobCard({
         : "text-neutral-500";
 
   return (
-    <article className="border-b border-neutral-800 px-4 py-3 transition-colors hover:bg-neutral-900/35">
+    <article className="border-b border-neutral-800 px-3 py-3 transition-colors hover:bg-neutral-900/35 sm:px-4">
       <div className="flex gap-3">
         <div className="mt-1 h-11 w-11 shrink-0 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-600 text-center text-[13px] font-bold leading-[2.65rem] text-white">
           {job.company
@@ -81,7 +81,7 @@ export function JobCard({
             ))}
           </div>
 
-          <footer className="mt-4 flex max-w-md items-center justify-between text-neutral-500">
+          <footer className="mt-4 flex w-full max-w-full items-center justify-between text-neutral-500 sm:max-w-md">
             <button
               type="button"
               className="group flex flex-1 items-center justify-center gap-2 rounded-full py-1.5 text-sm hover:bg-sky-500/10 hover:text-sky-400"
@@ -137,9 +137,10 @@ export function JobCard({
               <button
                 type="button"
                 onClick={onAssistApply}
-                className="w-full rounded-full bg-sky-500 py-2 text-center text-[15px] font-semibold text-white shadow-lg shadow-sky-500/25 transition hover:bg-sky-400"
+                className="w-full rounded-full bg-sky-500 py-3 text-center text-[15px] font-semibold leading-tight text-white shadow-lg shadow-sky-500/25 transition [touch-action:manipulation] hover:bg-sky-400 sm:py-2"
               >
-                Apply on my behalf (copy pitch + open form)
+                <span className="block sm:hidden">Apply (copy draft + tab)</span>
+                <span className="hidden sm:block">Apply on my behalf (copy pitch + open form)</span>
               </button>
               <p className="mt-2 text-center text-[13px] text-neutral-600">
                 You still submit on the employer site—we prep the draft and tab.

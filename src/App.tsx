@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { FeedHeader } from "./components/FeedHeader";
 import { JobCard } from "./components/JobCard";
+import { MobileSettingsSheet } from "./components/MobileSettingsSheet";
+import { MobileTabBar } from "./components/MobileTabBar";
 import { RightRail } from "./components/RightRail";
 import { ToastStack } from "./components/ToastStack";
 import { profile } from "./data/profile";
@@ -25,6 +28,18 @@ export default function App() {
     refresh,
   } = useJobBoard();
 
+  const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1280px)");
+    const collapse = () => {
+      if (mq.matches) setMobileSettingsOpen(false);
+    };
+    collapse();
+    mq.addEventListener("change", collapse);
+    return () => mq.removeEventListener("change", collapse);
+  }, []);
+
   const titles: Record<typeof tab, string> = {
     feed: "For you · roles",
     matches: "Strong matches",
@@ -45,10 +60,10 @@ export default function App() {
     "US + US-friendly remote only · Arbeitnow · Remotive · Remote OK · Jobicy · Indeed (optional proxy) · auto-refresh (~5 min)";
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-[990px] border-x border-neutral-800">
+    <div className="relative mx-auto flex min-h-[100dvh] min-h-screen w-full min-w-0 max-w-[100vw] flex-col bg-black lg:mx-auto lg:max-w-[1600px] lg:flex-row lg:border-x lg:border-neutral-800">
       <Sidebar tab={tab} onTab={setTab} />
 
-      <main className="min-h-screen flex-1 min-w-0 border-r border-neutral-800">
+      <main className="min-h-0 min-w-0 flex-1 shrink border-neutral-800 pb-[calc(env(safe-area-inset-bottom,0px)+5.75rem)] lg:flex-1 lg:border-r lg:pb-0">
         <FeedHeader
           title={titles[tab]}
           query={query}
@@ -57,9 +72,10 @@ export default function App() {
           syncing={syncing}
           syncedLabel={syncedLabel}
           subtitle={subtitle}
+          onOpenSettings={() => setMobileSettingsOpen(true)}
         />
 
-        <div className="border-b border-neutral-800 px-4 pb-3 pt-1">
+        <div className="border-b border-neutral-800 px-3 pb-3 pt-1 sm:px-4">
           <ComposeHint syncing={syncing} />
         </div>
 
@@ -82,6 +98,14 @@ export default function App() {
 
       <RightRail settings={settings} onChange={setSettings} />
 
+      <MobileTabBar tab={tab} onTab={setTab} />
+      <MobileSettingsSheet
+        open={mobileSettingsOpen}
+        onClose={() => setMobileSettingsOpen(false)}
+        settings={settings}
+        onChange={setSettings}
+      />
+
       <ToastStack items={toasts} onDismiss={dismissToast} />
     </div>
   );
@@ -92,12 +116,13 @@ function ComposeHint({ syncing }: { syncing: boolean }) {
     <div className="flex gap-3">
       <div className="mt-1 h-11 w-11 shrink-0 rounded-full bg-neutral-900 text-center text-[13px] font-bold uppercase leading-[2.65rem] text-neutral-400">
         {profile.name
-          .split(" ")
+          .split(/\s+/)
+          .filter(Boolean)
           .map((w) => w[0])
           .slice(0, 2)
           .join("")}
       </div>
-      <div className="min-w-0 flex-1 rounded-3xl border border-neutral-700 bg-transparent px-4 py-3 text-[15px] text-neutral-500">
+      <div className="min-w-0 flex-1 rounded-3xl border border-neutral-700 bg-transparent px-3 py-2.5 text-[14px] leading-snug text-neutral-500 sm:px-4 sm:text-[15px]">
         {syncing ? (
           <span className="text-neutral-400">Hydrating postings from remote boards…</span>
         ) : (
@@ -121,11 +146,11 @@ function EmptyState({
 }) {
   if (loading && tab === "feed") {
     return (
-      <div className="px-10 py-16 text-center text-neutral-500">
-        <p className="text-lg">Pulling Arbeitnow & Remotive…</p>
-        <p className="mt-2 text-[15px] text-neutral-600">
-          Roles are normalized for UX / product design fit and marketing-only visual lanes are
-          filtered out.
+      <div className="px-6 py-12 text-center text-neutral-500 sm:px-10 sm:py-16">
+        <p className="text-base sm:text-lg">Pulling Arbeitnow & Remotive…</p>
+        <p className="mt-2 text-[14px] leading-snug text-neutral-600 sm:text-[15px]">
+          Roles are normalized for UX / product design fit and marketing-only visual lanes are filtered
+          out.
         </p>
       </div>
     );
@@ -138,8 +163,8 @@ function EmptyState({
         ? "No strong matches saved for this slice."
         : "No assisted applications tracked yet.";
   return (
-    <div className="px-10 py-16 text-center text-neutral-600">
-      <p className="text-lg">{copy}</p>
+    <div className="px-6 py-14 text-center text-neutral-600 sm:px-10 sm:py-16">
+      <p className="text-base sm:text-lg">{copy}</p>
     </div>
   );
 }
