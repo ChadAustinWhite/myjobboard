@@ -121,7 +121,7 @@ export function RightRail({
             >
               Arbeitnow
             </a>
-            &nbsp;JSON feed and&nbsp;
+            &nbsp;JSON feed,&nbsp;
             <a
               className="text-sky-400 hover:underline"
               href="https://remotive.com/api-documentation"
@@ -130,13 +130,22 @@ export function RightRail({
             >
               Remotive&apos;s open API
             </a>
+            , and&nbsp;
+            <a
+              className="text-sky-400 hover:underline"
+              href="https://remoteok.com/api"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Remote OK&apos;s JSON API
+            </a>
             . Roles are narrowed to postings that materially target the United States labour market plus
             distributed remote gigs that are not plainly EU/APAC-exclusive. Throttle refreshes—the public
             boards rate-limit abusive polling.
           </p>
           <p className="mt-2 text-[12px] text-neutral-700">
-            Per Remotive&apos;s terms we link listings back to Remotive-hosted detail pages wherever
-            their URL applies.
+            Listing URLs point back to Remotive / Remote OK / Arbeitnow-hosted pages where their API terms
+            require it.
           </p>
         </div>
       </div>

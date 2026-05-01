@@ -1,6 +1,12 @@
 import { geoMatchesUnitedStatesFocus } from "../lib/geoFilter";
 import { fetchArbeitnowJobs } from "./arbeitnow";
+import { fetchRemoteOkJobs } from "./remoteok";
 import { fetchRemotiveJobs } from "./remotive";
+
+const LIVE_AGGREGATE_SOURCE_IDS = ["arbeitnow", "remotive", "remote_ok"] as const;
+
+/** Mirrors the number of independent fetches in `aggregateLiveJobs` (fallback when all fail). */
+export const LIVE_AGGREGATE_SOURCE_COUNT = LIVE_AGGREGATE_SOURCE_IDS.length;
 
 export interface LiveAggregation {
   jobs: import("../types").JobPosting[];
@@ -9,8 +15,8 @@ export interface LiveAggregation {
 }
 
 /**
- * Combines Arbeitnow board data with Remotive’s public slice so the feed spans
- * more than either board alone without inventing postings.
+ * Combines Arbeitnow, Remotive, and Remote OK feeds (public JSON, CORS-friendly)
+ * so the board still gets UX listings when Remotive serves only a thin snapshot slice.
  */
 export async function aggregateLiveJobs(
   signal?: AbortSignal,
@@ -33,6 +39,13 @@ export async function aggregateLiveJobs(
       })
       .catch((e: unknown) => {
         errors.remotive = e instanceof Error ? e.message : "Unknown error";
+      }),
+    fetchRemoteOkJobs(signal)
+      .then((rows) => {
+        out.push(...rows);
+      })
+      .catch((e: unknown) => {
+        errors.remote_ok = e instanceof Error ? e.message : "Unknown error";
       }),
   ]);
 
