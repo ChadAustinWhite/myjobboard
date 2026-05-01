@@ -1,5 +1,7 @@
 # Deploy: cd workers/indeed-proxy && npx wrangler deploy
 # Secrets: wrangler secret put INDEED_PUBLISHER_ID
+# Optional (see src/index.ts routes): ADZUNA_APP_ID, ADZUNA_APP_KEY, FINDWORK_API_TOKEN,
+# JOBDATA_API_KEY, CAREERJET_API_KEY, CAREERJET_REFERER
 name = "myjobboard-indeed-proxy"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"

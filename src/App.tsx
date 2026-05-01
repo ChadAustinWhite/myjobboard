@@ -64,7 +64,7 @@ export default function App() {
   }, [sync, timeTick]);
 
   const subtitle =
-    "US + US-friendly remote only · Arbeitnow · Remotive · Remote OK · Jobicy · Himalayas · CareerNest · Indeed (optional) · ~45s poll (+ focus / reconnect)";
+    "US + US-friendly roles · Open JSON boards + Himalayas · CareerNest · optional Indeed & Worker-backed Adzuna · Findwork · jobdata · Careerjet · ~45s poll";
 
   return (
     <div className="relative mx-auto flex min-h-[100dvh] min-h-screen w-full min-w-0 max-w-[100vw] flex-col bg-black lg:mx-auto lg:max-w-[1600px] lg:flex-row lg:border-x lg:border-neutral-800">

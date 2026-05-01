@@ -1,8 +1,12 @@
 import { geoMatchesUnitedStatesFocus } from "../lib/geoFilter";
+import { fetchAdzunaJobs, isAdzunaConfigured } from "./adzuna";
 import { fetchArbeitnowJobs } from "./arbeitnow";
 import { fetchCareerNestJobs } from "./careernest";
+import { fetchCareerjetJobs, isCareerjetConfigured } from "./careerjet";
+import { fetchFindworkJobs, isFindworkConfigured } from "./findwork";
 import { fetchHimalayasJobs } from "./himalayas";
 import { fetchIndeedJobs, isIndeedFeedConfigured } from "./indeed";
+import { fetchJobdataJobs, isJobdataConfigured } from "./jobdataApi";
 import { fetchJobicyJobs } from "./jobicy";
 import { fetchRemoteOkJobs } from "./remoteok";
 import { fetchRemotiveJobs } from "./remotive";
@@ -25,7 +29,7 @@ export interface LiveAggregation {
 }
 
 /**
- * Combines Arbeitnow, Remotive, Remote OK, Jobicy, Himalayas, Career Nest (JSON), and optional Indeed
+ * Combines public JSON boards + optional Indeed (proxy) + optional Adzuna / Findwork / jobdata / Careerjet
  * so the client keeps a fuller UX slice without extra infrastructure.
  */
 export async function aggregateLiveJobs(
@@ -38,6 +42,10 @@ export async function aggregateLiveJobs(
   let liveFetcherCount = BASE_AGGREGATORS.length;
   const indeedConfigured = isIndeedFeedConfigured();
   if (indeedConfigured) liveFetcherCount += 1;
+  if (isAdzunaConfigured()) liveFetcherCount += 1;
+  if (isFindworkConfigured()) liveFetcherCount += 1;
+  if (isJobdataConfigured()) liveFetcherCount += 1;
+  if (isCareerjetConfigured()) liveFetcherCount += 1;
 
   const tasks = [
     fetchArbeitnowJobs(signal)
@@ -89,6 +97,42 @@ export async function aggregateLiveJobs(
           })
           .catch((e: unknown) => {
             errors.indeed = e instanceof Error ? e.message : "Unknown error";
+          })
+      : Promise.resolve(),
+    isAdzunaConfigured()
+      ? fetchAdzunaJobs(signal)
+          .then((rows) => {
+            out.push(...rows);
+          })
+          .catch((e: unknown) => {
+            errors.adzuna = e instanceof Error ? e.message : "Unknown error";
+          })
+      : Promise.resolve(),
+    isFindworkConfigured()
+      ? fetchFindworkJobs(signal)
+          .then((rows) => {
+            out.push(...rows);
+          })
+          .catch((e: unknown) => {
+            errors.findwork = e instanceof Error ? e.message : "Unknown error";
+          })
+      : Promise.resolve(),
+    isJobdataConfigured()
+      ? fetchJobdataJobs(signal)
+          .then((rows) => {
+            out.push(...rows);
+          })
+          .catch((e: unknown) => {
+            errors.jobdataapi = e instanceof Error ? e.message : "Unknown error";
+          })
+      : Promise.resolve(),
+    isCareerjetConfigured()
+      ? fetchCareerjetJobs(signal)
+          .then((rows) => {
+            out.push(...rows);
+          })
+          .catch((e: unknown) => {
+            errors.careerjet = e instanceof Error ? e.message : "Unknown error";
           })
       : Promise.resolve(),
   ];

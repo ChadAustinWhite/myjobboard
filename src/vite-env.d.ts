@@ -19,6 +19,33 @@ interface ImportMetaEnv {
   readonly VITE_CAREERNEST_FEED_URL?: string;
   /** Base URL for Cloudflare Worker that proxies Publisher search (omit to disable Indeed). */
   readonly VITE_INDEED_PROXY_URL?: string;
+  /**
+   * Same worker origin as Indeed (see `workers/indeed-proxy`) to reach `/adzuna`, `/findwork`,
+   * `/jobdata`, `/careerjet` with secrets stored in the Worker.
+   */
+  readonly VITE_JOB_APIS_PROXY_URL?: string;
+  /**
+   * Subset of edge routes to call: `adzuna,findwork,jobdata,careerjet`. Use `none` to disable all.
+   * When unset, defaults to all four whenever `VITE_JOB_APIS_PROXY_URL` is set.
+   */
+  readonly VITE_JOB_EDGE_FEATURES?: string;
+  readonly VITE_ADZUNA_APP_ID?: string;
+  readonly VITE_ADZUNA_APP_KEY?: string;
+  readonly VITE_ADZUNA_COUNTRY?: string;
+  readonly VITE_ADZUNA_WHAT?: string;
+  readonly VITE_ADZUNA_RESULTS_PER_PAGE?: string;
+  readonly VITE_FINDWORK_API_TOKEN?: string;
+  readonly VITE_FINDWORK_SEARCH?: string;
+  readonly VITE_FINDWORK_SEARCH_ROUNDS?: string;
+  readonly VITE_FINDWORK_LIMIT?: string;
+  readonly VITE_JOBDATA_API_KEY?: string;
+  readonly VITE_JOBDATA_TITLES?: string;
+  readonly VITE_JOBDATA_PAGE_SIZE?: string;
+  readonly VITE_JOBDATA_COUNTRY?: string;
+  readonly VITE_JOBDATA_HAS_REMOTE?: string;
+  readonly VITE_CAREERJET_KEYWORDS?: string;
+  readonly VITE_CAREERJET_LOCALES?: string;
+  readonly VITE_CAREERJET_PAGE_SIZE?: string;
   readonly VITE_INDEED_SEARCH_Q?: string;
   readonly VITE_INDEED_LOCATION?: string;
   readonly VITE_INDEED_MAX_PAGES?: string;
