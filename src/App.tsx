@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { FeedHeader } from "./components/FeedHeader";
 import { JobCard } from "./components/JobCard";
@@ -8,6 +8,7 @@ import { RightRail } from "./components/RightRail";
 import { ToastStack } from "./components/ToastStack";
 import { profile } from "./data/profile";
 import { useJobBoard } from "./hooks/useJobBoard";
+import { useTimeTick } from "./hooks/useTimeTick";
 import { formatDistanceToNow } from "./lib/formatTime";
 
 export default function App() {
@@ -28,6 +29,9 @@ export default function App() {
     refresh,
   } = useJobBoard();
 
+  /** Re-render so “Updated Xm ago” and card timestamps keep pace with wall time between polls. */
+  const timeTick = useTimeTick(10_000);
+
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
 
   useEffect(() => {
@@ -47,17 +51,20 @@ export default function App() {
   };
 
   const syncing = sync.phase === "loading";
-  const syncedLabel =
-    sync.phase === "ok"
-      ? `Updated ${formatDistanceToNow(sync.fetchedAt)} ago${
-          sync.usedFallback ? " · sample backup" : ""
-        }`
-      : sync.phase === "error"
-        ? `Sync issue — ${sync.message}`
-        : null;
+  const syncedLabel = useMemo(() => {
+    if (sync.phase === "ok") {
+      return `Updated ${formatDistanceToNow(sync.fetchedAt)} ago${
+        sync.usedFallback ? " · sample backup" : ""
+      }`;
+    }
+    if (sync.phase === "error") {
+      return `Sync issue — ${sync.message}`;
+    }
+    return null;
+  }, [sync, timeTick]);
 
   const subtitle =
-    "US + US-friendly remote only · Arbeitnow · Remotive · Remote OK · Jobicy · Indeed (optional proxy) · auto-refresh (~5 min)";
+    "US + US-friendly remote only · Arbeitnow · Remotive · Remote OK · Jobicy · Indeed (optional proxy) · ~45s live poll (+ focus / reconnect)";
 
   return (
     <div className="relative mx-auto flex min-h-[100dvh] min-h-screen w-full min-w-0 max-w-[100vw] flex-col bg-black lg:mx-auto lg:max-w-[1600px] lg:flex-row lg:border-x lg:border-neutral-800">
