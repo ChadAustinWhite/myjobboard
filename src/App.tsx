@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { FeedHeader } from "./components/FeedHeader";
 import { JobCard } from "./components/JobCard";
@@ -5,6 +6,7 @@ import { RightRail } from "./components/RightRail";
 import { ToastStack } from "./components/ToastStack";
 import { profile } from "./data/profile";
 import { useJobBoard } from "./hooks/useJobBoard";
+import { useTimeTick } from "./hooks/useTimeTick";
 import { formatDistanceToNow } from "./lib/formatTime";
 
 export default function App() {
@@ -25,6 +27,9 @@ export default function App() {
     refresh,
   } = useJobBoard();
 
+  /** Re-render so “Updated Xm ago” and card timestamps keep pace with wall time between polls. */
+  const timeTick = useTimeTick(10_000);
+
   const titles: Record<typeof tab, string> = {
     feed: "For you · roles",
     matches: "Strong matches",
@@ -32,17 +37,20 @@ export default function App() {
   };
 
   const syncing = sync.phase === "loading";
-  const syncedLabel =
-    sync.phase === "ok"
-      ? `Updated ${formatDistanceToNow(sync.fetchedAt)} ago${
-          sync.usedFallback ? " · sample backup" : ""
-        }`
-      : sync.phase === "error"
-        ? `Sync issue — ${sync.message}`
-        : null;
+  const syncedLabel = useMemo(() => {
+    if (sync.phase === "ok") {
+      return `Updated ${formatDistanceToNow(sync.fetchedAt)} ago${
+        sync.usedFallback ? " · sample backup" : ""
+      }`;
+    }
+    if (sync.phase === "error") {
+      return `Sync issue — ${sync.message}`;
+    }
+    return null;
+  }, [sync, timeTick]);
 
   const subtitle =
-    "US + US-friendly remote only · Arbeitnow · Remotive · Remote OK · Jobicy · Indeed (optional proxy) · auto-refresh (~5 min)";
+    "US + US-friendly remote only · Arbeitnow · Remotive · Remote OK · Jobicy · Indeed (optional proxy) · ~45s live poll (+ focus / reconnect)";
 
   return (
     <div className="mx-auto flex min-h-screen max-w-[990px] border-x border-neutral-800">

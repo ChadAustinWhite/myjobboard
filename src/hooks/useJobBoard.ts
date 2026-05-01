@@ -17,11 +17,15 @@ import {
 import type { AppliedRecord, JobPosting } from "../types";
 
 const SIMULATE_INCOMING = import.meta.env.VITE_SIMULATE_INCOMING === "true";
-const MIN_REFRESH_INTERVAL_MS = Number(
-  import.meta.env.VITE_FEED_MIN_REFRESH_MS ?? 120_000,
-);
+
+/** Default poll: 45s. Override with VITE_FEED_REFRESH_MS (stay ≥ min-interval). */
 const BACKGROUND_POLL_MS = Number(
-  import.meta.env.VITE_FEED_REFRESH_MS ?? 5 * 60 * 1000,
+  import.meta.env.VITE_FEED_REFRESH_MS ?? 45_000,
+);
+
+/** Quiet period between non-forced pulls (spam / tab-focus). Default 30s. */
+const MIN_REFRESH_INTERVAL_MS = Number(
+  import.meta.env.VITE_FEED_MIN_REFRESH_MS ?? 30_000,
 );
 
 const incomingWave: Omit<JobPosting, "postedAt">[] = [
@@ -89,6 +93,7 @@ export function useJobBoard() {
 
   const baselineRef = useRef<Set<string> | null>(null);
   const lastFetchAtRef = useRef(0);
+  const refreshInFlightRef = useRef(false);
   const appliedIdsRef = useRef(new Set<string>());
   const passedIdsRef = useRef(new Set<string>());
 
@@ -210,7 +215,11 @@ export function useJobBoard() {
       if (!force && now - lastFetchAtRef.current < MIN_REFRESH_INTERVAL_MS) {
         return;
       }
+      if (!force && refreshInFlightRef.current) {
+        return;
+      }
 
+      refreshInFlightRef.current = true;
       setSync((prev) => (prev.phase === "loading" ? prev : { phase: "loading" }));
 
       try {
@@ -291,6 +300,8 @@ export function useJobBoard() {
         setJobs(localSamples);
         baselineRef.current = new Set(localSamples.map((j) => j.id));
         toast("Couldn’t sync", `${msg}. Showing offline samples for now.`);
+      } finally {
+        refreshInFlightRef.current = false;
       }
     },
     [handleNewArrivals, toast],
@@ -321,12 +332,17 @@ export function useJobBoard() {
       window.clearTimeout(debounce);
       debounce = window.setTimeout(() => {
         void refreshRef.current(false);
-      }, 1000);
+      }, 750);
     };
     document.addEventListener("visibilitychange", bump);
+    window.addEventListener("focus", bump);
+    const onOnline = () => void refreshRef.current(true);
+    window.addEventListener("online", onOnline);
     return () => {
       window.clearTimeout(debounce);
       document.removeEventListener("visibilitychange", bump);
+      window.removeEventListener("focus", bump);
+      window.removeEventListener("online", onOnline);
     };
   }, []);
 
