@@ -44,6 +44,8 @@ Indeed does **not** accept browser calls with your Publisher ID. This repo ships
 4. `npx wrangler deploy` → note the **`*.workers.dev`** URL.
 5. Add a GitHub **Actions secret** **`VITE_INDEED_PROXY_URL`** with that Worker URL (`https://…`) so Pages builds bake it into the bundle, **or** set it when running `npm run build` locally.
 
+If Indeed stops issuing new Publisher programmatic access or returns `{ "error": "…" }` on `apisearch`, the board still runs on Arbeitnow + Remotive + Remote OK—you’ll simply see zero rows from Indeed until partner credentials arrive.
+
 **LinkedIn:** there is still no sanctioned public job-search JSON API comparable to Arbeitnow—aggregating LinkedIn postings needs an approved LinkedIn Talent / Jobs partner path, which is outside this static-site setup.
 
 ## Pull requests
