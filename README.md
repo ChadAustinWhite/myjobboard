@@ -33,3 +33,7 @@ npm run preview -- --base /myjobboard/
 ```
 
 Then open http://localhost:4173/myjobboard/
+
+## Pull requests
+
+Push a feature branch, then compare it against **`main`** and choose **Compare & pull request** on GitHub (for example: `https://github.com/ChadAustinWhite/myjobboard/compare/main...YOUR-BRANCH?expand=1`).
