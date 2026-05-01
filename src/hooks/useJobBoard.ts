@@ -232,20 +232,18 @@ export function useJobBoard() {
             "Showing saved sample roles until the network recovers.",
           );
         } else if (merged.length === 0) {
-          merged = sampled;
-          usedFallback = true;
           try {
             if (!sessionStorage.getItem("mb:toast-live-empty-once")) {
               sessionStorage.setItem("mb:toast-live-empty-once", "1");
               toast(
-                "Showing sample roles",
-                "Live feeds returned no postings that matched UX + geography filters—we’ll retry on the next refresh.",
+                "No matches right now",
+                "Live feeds returned nothing that matched geography + UX filters—we’ll retry on refresh.",
               );
             }
           } catch {
             toast(
-              "Showing sample roles",
-              "Nothing from the APIs matched UX + geography filters right now.",
+              "No matches right now",
+              "Nothing from the APIs matched filters; try again after the next poll.",
             );
           }
         } else if (errors.length) {
