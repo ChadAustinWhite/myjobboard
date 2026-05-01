@@ -1,5 +1,5 @@
 import { isVisualOnlyDesignFocus } from "../lib/jobFilters";
-import { passesUxProductDesignFocus } from "../lib/liveJobFilter";
+import { passesBoardIngestUxDesignSignals } from "../lib/liveJobFilter";
 import type { JobPosting } from "../types";
 import { htmlToPlainText } from "./htmlPlain";
 
@@ -7,9 +7,10 @@ const DEFAULT_URL =
   import.meta.env.VITE_ARBEITNOW_API_URL ??
   "https://www.arbeitnow.com/api/job-board-api";
 
+/** Cap 5 — stay polite to Arbeitnow’s public API; env overrides default depth. */
 const MAX_PAGES = Math.min(
   5,
-  Math.max(1, Number(import.meta.env.VITE_ARBEITNOW_MAX_PAGES ?? 1)),
+  Math.max(1, Number(import.meta.env.VITE_ARBEITNOW_MAX_PAGES ?? 3)),
 );
 
 interface RawArbeitnow {
@@ -52,7 +53,7 @@ export async function fetchArbeitnowJobs(signal?: AbortSignal): Promise<JobPosti
       const plain = htmlToPlainText(r.description ?? "", 16_000);
       const tags = normalizeTags(r.tags, r.job_types);
 
-      if (!passesUxProductDesignFocus(title, plain, tags)) continue;
+      if (!passesBoardIngestUxDesignSignals(title, plain, tags)) continue;
 
       const draft: JobPosting = {
         id: `arbeitnow-${r.slug}`,

@@ -1,5 +1,5 @@
 import { isVisualOnlyDesignFocus } from "../lib/jobFilters";
-import { passesUxProductDesignFocus } from "../lib/liveJobFilter";
+import { passesBoardIngestUxDesignSignals } from "../lib/liveJobFilter";
 import type { JobPosting } from "../types";
 import { htmlToPlainText } from "./htmlPlain";
 
@@ -40,7 +40,12 @@ export async function fetchRemotiveJobs(signal?: AbortSignal): Promise<JobPostin
     const plain = htmlToPlainText(j.description ?? "", 16_000);
     const tags = tagList(j);
 
-    if (!passesUxProductDesignFocus(title, plain, tags)) continue;
+    if (
+      !passesBoardIngestUxDesignSignals(title, plain, tags, {
+        boardCategory: j.category,
+      })
+    )
+      continue;
 
     const posting: JobPosting = {
       id: `remotive-${j.id}`,
