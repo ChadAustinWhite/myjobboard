@@ -11,9 +11,18 @@ import { useJobBoard } from "./hooks/useJobBoard";
 import { useTimeTick } from "./hooks/useTimeTick";
 import { formatDistanceToNow } from "./lib/formatTime";
 
+function formatPostingCounts(visible: number, total: number): string {
+  const noun = total === 1 ? "posting" : "postings";
+  const tv = total.toLocaleString();
+  const vv = visible.toLocaleString();
+  if (visible === total) return `${tv} ${noun}`;
+  return `${vv} of ${tv} ${noun}`;
+}
+
 export default function App() {
   const {
     filtered,
+    matched,
     tab,
     setTab,
     query,
@@ -66,6 +75,11 @@ export default function App() {
   const subtitle =
     "US + US-friendly roles · Open JSON boards + Himalayas · CareerNest · optional Indeed & Worker-backed Adzuna · Findwork · jobdata · Careerjet · ~45s poll";
 
+  const postingCountLabel =
+    matched.length === 0 && syncing
+      ? null
+      : formatPostingCounts(filtered.length, matched.length);
+
   return (
     <div className="relative mx-auto flex min-h-[100dvh] min-h-screen w-full min-w-0 max-w-[100vw] flex-col bg-black lg:mx-auto lg:max-w-[1600px] lg:flex-row lg:border-x lg:border-neutral-800">
       <Sidebar tab={tab} onTab={setTab} />
@@ -79,6 +93,7 @@ export default function App() {
           syncing={syncing}
           syncedLabel={syncedLabel}
           subtitle={subtitle}
+          postingCountLabel={postingCountLabel}
           onOpenSettings={() => setMobileSettingsOpen(true)}
         />
 
