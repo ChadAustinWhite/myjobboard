@@ -81,3 +81,20 @@ export function IconSearch({ className }: { className?: string }) {
     </svg>
   );
 }
+
+/** Sliders / settings — recognizable at small tap targets in the header. */
+export function IconSliders({ className }: { className?: string }) {
+  return (
+    <svg {...stroke} className={className} viewBox="0 0 24 24" aria-hidden>
+      <path d="M12 21v-6" />
+      <path d="M12 9V3" />
+      <circle cx="12" cy="12" r="2" />
+      <path d="M19 21v-5" />
+      <path d="M19 10V3" />
+      <circle cx="19" cy="8" r="2" />
+      <path d="M5 21v-9" />
+      <path d="M5 8V3" />
+      <circle cx="5" cy="14" r="2" />
+    </svg>
+  );
+}
