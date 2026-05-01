@@ -61,6 +61,8 @@ function isAutoAssistSource(source: string): boolean {
     source === "remotive" ||
     source === "remote_ok" ||
     source === "jobicy" ||
+    source === "himalayas" ||
+    source === "careernest" ||
     source === "indeed" ||
     source === "simulated_tip"
   );

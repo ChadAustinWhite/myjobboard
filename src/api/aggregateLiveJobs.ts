@@ -1,11 +1,20 @@
 import { geoMatchesUnitedStatesFocus } from "../lib/geoFilter";
 import { fetchArbeitnowJobs } from "./arbeitnow";
+import { fetchCareerNestJobs } from "./careernest";
+import { fetchHimalayasJobs } from "./himalayas";
 import { fetchIndeedJobs, isIndeedFeedConfigured } from "./indeed";
 import { fetchJobicyJobs } from "./jobicy";
 import { fetchRemoteOkJobs } from "./remoteok";
 import { fetchRemotiveJobs } from "./remotive";
 
-const BASE_AGGREGATORS = ["arbeitnow", "remotive", "remote_ok", "jobicy"] as const;
+const BASE_AGGREGATORS = [
+  "arbeitnow",
+  "remotive",
+  "remote_ok",
+  "jobicy",
+  "himalayas",
+  "careernest",
+] as const;
 
 export interface LiveAggregation {
   jobs: import("../types").JobPosting[];
@@ -16,7 +25,7 @@ export interface LiveAggregation {
 }
 
 /**
- * Combines Arbeitnow, Remotive, Remote OK, Jobicy (batched JSON), and optionally Indeed (proxied)
+ * Combines Arbeitnow, Remotive, Remote OK, Jobicy, Himalayas, Career Nest (JSON), and optional Indeed
  * so the client keeps a fuller UX slice without extra infrastructure.
  */
 export async function aggregateLiveJobs(
@@ -58,6 +67,20 @@ export async function aggregateLiveJobs(
       })
       .catch((e: unknown) => {
         errors.jobicy = e instanceof Error ? e.message : "Unknown error";
+      }),
+    fetchHimalayasJobs(signal)
+      .then((rows) => {
+        out.push(...rows);
+      })
+      .catch((e: unknown) => {
+        errors.himalayas = e instanceof Error ? e.message : "Unknown error";
+      }),
+    fetchCareerNestJobs(signal)
+      .then((rows) => {
+        out.push(...rows);
+      })
+      .catch((e: unknown) => {
+        errors.careernest = e instanceof Error ? e.message : "Unknown error";
       }),
     indeedConfigured
       ? fetchIndeedJobs(signal)
