@@ -1,10 +1,11 @@
 import { geoMatchesUnitedStatesFocus } from "../lib/geoFilter";
 import { fetchArbeitnowJobs } from "./arbeitnow";
 import { fetchIndeedJobs, isIndeedFeedConfigured } from "./indeed";
+import { fetchJobicyJobs } from "./jobicy";
 import { fetchRemoteOkJobs } from "./remoteok";
 import { fetchRemotiveJobs } from "./remotive";
 
-const BASE_AGGREGATORS = ["arbeitnow", "remotive", "remote_ok"] as const;
+const BASE_AGGREGATORS = ["arbeitnow", "remotive", "remote_ok", "jobicy"] as const;
 
 export interface LiveAggregation {
   jobs: import("../types").JobPosting[];
@@ -15,8 +16,8 @@ export interface LiveAggregation {
 }
 
 /**
- * Combines Arbeitnow, Remotive, Remote OK, and optionally Indeed (proxied Publisher search)
- * so Pages static hosting can serve real listings without shipping Indeed credentials.
+ * Combines Arbeitnow, Remotive, Remote OK, Jobicy (batched JSON), and optionally Indeed (proxied)
+ * so the client keeps a fuller UX slice without extra infrastructure.
  */
 export async function aggregateLiveJobs(
   signal?: AbortSignal,
@@ -50,6 +51,13 @@ export async function aggregateLiveJobs(
       })
       .catch((e: unknown) => {
         errors.remote_ok = e instanceof Error ? e.message : "Unknown error";
+      }),
+    fetchJobicyJobs(signal)
+      .then((rows) => {
+        out.push(...rows);
+      })
+      .catch((e: unknown) => {
+        errors.jobicy = e instanceof Error ? e.message : "Unknown error";
       }),
     indeedConfigured
       ? fetchIndeedJobs(signal)

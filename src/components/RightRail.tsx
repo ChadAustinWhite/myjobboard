@@ -139,7 +139,16 @@ export function RightRail({
             >
               Remote OK&apos;s JSON API
             </a>
-            . Optional&nbsp;
+            , plus the&nbsp;
+            <a
+              className="text-sky-400 hover:underline"
+              href="https://jobicy.com/"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Jobicy
+            </a>
+            &nbsp;remote JSON bundle (crediting Jobicy in-listing URLs). Optional&nbsp;
             <a
               className="text-sky-400 hover:underline"
               href="https://www.indeed.com/intl/en_US/terms"

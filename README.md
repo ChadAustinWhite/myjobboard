@@ -1,6 +1,6 @@
 # myjobboard
 
-UX job feed (Twitter-style UI) with live Arbeitnow + Remotive listings, résumé match scores, and assisted apply flows.
+UX job feed (Twitter-style UI) with live boards (Arbeitnow, Remotive, Remote OK, Jobicy), résumé match scores, and assisted apply flows.
 
 ## GitHub Pages (public site)
 
