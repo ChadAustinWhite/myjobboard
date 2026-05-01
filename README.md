@@ -34,9 +34,17 @@ npm run preview -- --base /myjobboard/
 
 Then open http://localhost:4173/myjobboard/
 
-## Production behavior (Feeds / GitHub Pages)
+## Optional: Indeed (Publisher search via Worker)
 
-When Arbeitnow + Remotive return **HTTP 200** but every listing fails the UX or US/geo heuristics, the board used to render **nothing** because fallback samples were only wired for dual-source failures. The client now swaps in curated US-aligned sample postings, keeps fetching on your refresh cadence, and treats common `City, ST` shorthand as positive US grounding. Users see a lightweight toast once per tab session explaining that mismatch case.
+Indeed does **not** accept browser calls with your Publisher ID. This repo ships a **Cloudflare Worker** under **`workers/indeed-proxy/`** that keeps the ID secret, enables CORS for your GitHub Pages origin, and forwards `apisearch`.
+
+1. In `workers/indeed-proxy/wrangler.toml`, extend **`ALLOW_ORIGINS`** with every origin where you browse the SPA (preview ports, localhost, Pages URL).
+2. `cd workers/indeed-proxy && npm install`
+3. `npx wrangler secret put INDEED_PUBLISHER_ID` → paste Publisher number from Indeed.
+4. `npx wrangler deploy` → note the **`*.workers.dev`** URL.
+5. Add a GitHub **Actions secret** **`VITE_INDEED_PROXY_URL`** with that Worker URL (`https://…`) so Pages builds bake it into the bundle, **or** set it when running `npm run build` locally.
+
+**LinkedIn:** there is still no sanctioned public job-search JSON API comparable to Arbeitnow—aggregating LinkedIn postings needs an approved LinkedIn Talent / Jobs partner path, which is outside this static-site setup.
 
 ## Pull requests
 

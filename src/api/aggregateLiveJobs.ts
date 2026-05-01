@@ -1,22 +1,22 @@
 import { geoMatchesUnitedStatesFocus } from "../lib/geoFilter";
 import { fetchArbeitnowJobs } from "./arbeitnow";
+import { fetchIndeedJobs, isIndeedFeedConfigured } from "./indeed";
 import { fetchRemoteOkJobs } from "./remoteok";
 import { fetchRemotiveJobs } from "./remotive";
 
-const LIVE_AGGREGATE_SOURCE_IDS = ["arbeitnow", "remotive", "remote_ok"] as const;
-
-/** Mirrors the number of independent fetches in `aggregateLiveJobs` (fallback when all fail). */
-export const LIVE_AGGREGATE_SOURCE_COUNT = LIVE_AGGREGATE_SOURCE_IDS.length;
+const BASE_AGGREGATORS = ["arbeitnow", "remotive", "remote_ok"] as const;
 
 export interface LiveAggregation {
   jobs: import("../types").JobPosting[];
   errors: Partial<Record<string, string>>;
   fetchedAt: string;
+  /** Count of upstream fetches this run expects (basis for fallback when every source errors). */
+  liveFetcherCount: number;
 }
 
 /**
- * Combines Arbeitnow, Remotive, and Remote OK feeds (public JSON, CORS-friendly)
- * so the board still gets UX listings when Remotive serves only a thin snapshot slice.
+ * Combines Arbeitnow, Remotive, Remote OK, and optionally Indeed (proxied Publisher search)
+ * so Pages static hosting can serve real listings without shipping Indeed credentials.
  */
 export async function aggregateLiveJobs(
   signal?: AbortSignal,
@@ -25,7 +25,11 @@ export async function aggregateLiveJobs(
   const fetchedAt = new Date().toISOString();
   const out: import("../types").JobPosting[] = [];
 
-  await Promise.all([
+  let liveFetcherCount = BASE_AGGREGATORS.length;
+  const indeedConfigured = isIndeedFeedConfigured();
+  if (indeedConfigured) liveFetcherCount += 1;
+
+  const tasks = [
     fetchArbeitnowJobs(signal)
       .then((rows) => {
         out.push(...rows);
@@ -47,13 +51,24 @@ export async function aggregateLiveJobs(
       .catch((e: unknown) => {
         errors.remote_ok = e instanceof Error ? e.message : "Unknown error";
       }),
-  ]);
+    indeedConfigured
+      ? fetchIndeedJobs(signal)
+          .then((rows) => {
+            out.push(...rows);
+          })
+          .catch((e: unknown) => {
+            errors.indeed = e instanceof Error ? e.message : "Unknown error";
+          })
+      : Promise.resolve(),
+  ];
+
+  await Promise.all(tasks);
 
   out.sort((a, b) => Date.parse(b.postedAt) - Date.parse(a.postedAt));
 
   const usScoped = dedupeJobs(out).filter(geoMatchesUnitedStatesFocus);
 
-  return { jobs: usScoped, errors, fetchedAt };
+  return { jobs: usScoped, errors, fetchedAt, liveFetcherCount };
 }
 
 function normalizeKey(s: string): string {
