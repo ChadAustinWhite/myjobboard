@@ -1,5 +1,6 @@
-import { fetchRemotiveJobs } from "./remotive";
+import { geoMatchesUnitedStatesFocus } from "../lib/geoFilter";
 import { fetchArbeitnowJobs } from "./arbeitnow";
+import { fetchRemotiveJobs } from "./remotive";
 
 export interface LiveAggregation {
   jobs: import("../types").JobPosting[];
@@ -37,7 +38,9 @@ export async function aggregateLiveJobs(
 
   out.sort((a, b) => Date.parse(b.postedAt) - Date.parse(a.postedAt));
 
-  return { jobs: dedupeJobs(out), errors, fetchedAt };
+  const usScoped = dedupeJobs(out).filter(geoMatchesUnitedStatesFocus);
+
+  return { jobs: usScoped, errors, fetchedAt };
 }
 
 function normalizeKey(s: string): string {

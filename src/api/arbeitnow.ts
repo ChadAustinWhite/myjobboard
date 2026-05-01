@@ -7,6 +7,11 @@ const DEFAULT_URL =
   import.meta.env.VITE_ARBEITNOW_API_URL ??
   "https://www.arbeitnow.com/api/job-board-api";
 
+const MAX_PAGES = Math.min(
+  5,
+  Math.max(1, Number(import.meta.env.VITE_ARBEITNOW_MAX_PAGES ?? 1)),
+);
+
 interface RawArbeitnow {
   slug: string;
   company_name: string;
@@ -21,38 +26,54 @@ interface RawArbeitnow {
 }
 
 export async function fetchArbeitnowJobs(signal?: AbortSignal): Promise<JobPosting[]> {
-  const res = await fetch(DEFAULT_URL, { signal });
-  if (!res.ok) {
-    throw new Error(`Arbeitnow error ${res.status}`);
-  }
-
-  const body = (await res.json()) as { data?: RawArbeitnow[] };
-  const rows = body.data ?? [];
   const out: JobPosting[] = [];
+  const slugSeen = new Set<string>();
+  let page = 1;
 
-  for (const r of rows) {
-    const title = r.title?.trim() ?? "";
-    const plain = htmlToPlainText(r.description ?? "", 16_000);
-    const tags = normalizeTags(r.tags, r.job_types);
+  while (page <= MAX_PAGES) {
+    if (signal?.aborted) break;
 
-    if (!passesUxProductDesignFocus(title, plain, tags)) continue;
+    const pageUrl = new URL(DEFAULT_URL);
+    pageUrl.searchParams.set("page", String(page));
 
-    const draft: JobPosting = {
-      id: `arbeitnow-${r.slug}`,
-      company: r.company_name?.trim() || "Unknown company",
-      title,
-      postedAt: normalizeIso(r.created_at),
-      snippet: shorten(plain, 560),
-      applyUrl: r.url,
-      location: (r.location?.trim() || (r.remote ? "Remote" : "On-site")) as string,
-      remote: Boolean(r.remote),
-      tags,
-      source: "arbeitnow",
-    };
+    const res = await fetch(pageUrl.toString(), { signal });
+    if (!res.ok) {
+      throw new Error(`Arbeitnow error ${res.status}`);
+    }
 
-    if (isVisualOnlyDesignFocus(draft)) continue;
+    const body = (await res.json()) as { data?: RawArbeitnow[] };
+    const rows = body.data ?? [];
+    if (!rows.length) break;
 
-    out.push(draft);
+    for (const r of rows) {
+      if (slugSeen.has(r.slug)) continue;
+      slugSeen.add(r.slug);
+      const title = r.title?.trim() ?? "";
+      const plain = htmlToPlainText(r.description ?? "", 16_000);
+      const tags = normalizeTags(r.tags, r.job_types);
+
+      if (!passesUxProductDesignFocus(title, plain, tags)) continue;
+
+      const draft: JobPosting = {
+        id: `arbeitnow-${r.slug}`,
+        company: r.company_name?.trim() || "Unknown company",
+        title,
+        postedAt: normalizeIso(r.created_at),
+        snippet: shorten(plain, 560),
+        applyUrl: r.url,
+        location:
+          r.location?.trim() || (r.remote ? "Remote — location TBD" : "On-site — location TBD"),
+        remote: Boolean(r.remote),
+        tags,
+        source: "arbeitnow",
+      };
+
+      if (isVisualOnlyDesignFocus(draft)) continue;
+
+      out.push(draft);
+    }
+
+    page += 1;
   }
 
   return out;

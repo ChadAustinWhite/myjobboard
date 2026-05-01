@@ -42,7 +42,7 @@ export default function App() {
         : null;
 
   const subtitle =
-    "Live boards: Arbeitnow job board + Remotive public API · respect lightweight refresh cadence";
+    "US + US-friendly remote only · Arbeitnow + Remotive feeds · auto-refresh (~5 min · tab revisit bump)";
 
   return (
     <div className="mx-auto flex min-h-screen max-w-[990px] border-x border-neutral-800">

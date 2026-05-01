@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { aggregateLiveJobs } from "../api/aggregateLiveJobs";
 import { seedJobs as fallbackSeedJobs } from "../data/jobs";
 import { buildApplicationDraft } from "../lib/draftApplication";
+import { geoMatchesUnitedStatesFocus } from "../lib/geoFilter";
 import { isVisualOnlyDesignFocus } from "../lib/jobFilters";
 import { computeMatchScore } from "../lib/matchJob";
 import type { BoardSettings } from "../lib/storage";
@@ -16,8 +17,12 @@ import {
 import type { AppliedRecord, JobPosting } from "../types";
 
 const SIMULATE_INCOMING = import.meta.env.VITE_SIMULATE_INCOMING === "true";
-const MIN_REFRESH_INTERVAL_MS = 120_000;
-const BACKGROUND_SYNC_MS = 6 * 60 * 60 * 1000;
+const MIN_REFRESH_INTERVAL_MS = Number(
+  import.meta.env.VITE_FEED_MIN_REFRESH_MS ?? 120_000,
+);
+const BACKGROUND_POLL_MS = Number(
+  import.meta.env.VITE_FEED_REFRESH_MS ?? 5 * 60 * 1000,
+);
 
 const incomingWave: Omit<JobPosting, "postedAt">[] = [
   {
@@ -218,7 +223,7 @@ export function useJobBoard() {
         let merged = agg.jobs;
 
         if (failedAll) {
-          merged = fallbackSeedJobs;
+          merged = fallbackSeedJobs.filter(geoMatchesUnitedStatesFocus);
           toast(
             "Live boards unavailable",
             "Showing saved sample roles until the network recovers.",
@@ -253,8 +258,9 @@ export function useJobBoard() {
         }
         const msg = e instanceof Error ? e.message : "Sync failed";
         setSync({ phase: "error", message: msg });
-        setJobs(fallbackSeedJobs);
-        baselineRef.current = new Set(fallbackSeedJobs.map((j) => j.id));
+        const localSamples = fallbackSeedJobs.filter(geoMatchesUnitedStatesFocus);
+        setJobs(localSamples);
+        baselineRef.current = new Set(localSamples.map((j) => j.id));
         toast("Couldn’t sync", `${msg}. Showing offline samples for now.`);
       }
     },
@@ -275,8 +281,24 @@ export function useJobBoard() {
   useEffect(() => {
     const id = window.setInterval(() => {
       void refreshRef.current(false);
-    }, BACKGROUND_SYNC_MS);
+    }, BACKGROUND_POLL_MS);
     return () => window.clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    let debounce = 0;
+    const bump = () => {
+      if (document.visibilityState !== "visible") return;
+      window.clearTimeout(debounce);
+      debounce = window.setTimeout(() => {
+        void refreshRef.current(false);
+      }, 1000);
+    };
+    document.addEventListener("visibilitychange", bump);
+    return () => {
+      window.clearTimeout(debounce);
+      document.removeEventListener("visibilitychange", bump);
+    };
   }, []);
 
   useEffect(() => {

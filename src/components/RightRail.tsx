@@ -130,7 +130,9 @@ export function RightRail({
             >
               Remotive&apos;s open API
             </a>
-            . Both allow browser access; throttle refresh (heavy polling can trigger rate caps).
+            . Roles are narrowed to postings that materially target the United States labour market plus
+            distributed remote gigs that are not plainly EU/APAC-exclusive. Throttle refreshes—the public
+            boards rate-limit abusive polling.
           </p>
           <p className="mt-2 text-[12px] text-neutral-700">
             Per Remotive&apos;s terms we link listings back to Remotive-hosted detail pages wherever
