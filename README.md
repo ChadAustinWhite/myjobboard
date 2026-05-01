@@ -34,6 +34,10 @@ npm run preview -- --base /myjobboard/
 
 Then open http://localhost:4173/myjobboard/
 
+## Production behavior (Feeds / GitHub Pages)
+
+When Arbeitnow + Remotive return **HTTP 200** but every listing fails the UX or US/geo heuristics, the board used to render **nothing** because fallback samples were only wired for dual-source failures. The client now swaps in curated US-aligned sample postings, keeps fetching on your refresh cadence, and treats common `City, ST` shorthand as positive US grounding. Users see a lightweight toast once per tab session explaining that mismatch case.
+
 ## Pull requests
 
 Push a feature branch, then compare it against **`main`** and choose **Compare & pull request** on GitHub (for example: `https://github.com/ChadAustinWhite/myjobboard/compare/main...YOUR-BRANCH?expand=1`).
