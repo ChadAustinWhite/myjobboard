@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { aggregateLiveJobs } from "../api/aggregateLiveJobs";
+import {
+  aggregateLiveJobs,
+  LIVE_AGGREGATE_SOURCE_COUNT,
+} from "../api/aggregateLiveJobs";
 import { seedJobs as fallbackSeedJobs } from "../data/jobs";
 import { buildApplicationDraft } from "../lib/draftApplication";
 import { geoMatchesUnitedStatesFocus } from "../lib/geoFilter";
@@ -55,6 +58,7 @@ function isAutoAssistSource(source: string): boolean {
   return (
     source === "arbeitnow" ||
     source === "remotive" ||
+    source === "remote_ok" ||
     source === "simulated_tip"
   );
 }
@@ -218,7 +222,8 @@ export function useJobBoard() {
         }
 
         const errors = Object.entries(agg.errors).filter(([, v]) => v);
-        const failedSources = errors.length >= 2;
+        const failedSources =
+          errors.length >= LIVE_AGGREGATE_SOURCE_COUNT;
         const sampled = fallbackSeedJobs.filter(geoMatchesUnitedStatesFocus);
 
         let merged = agg.jobs;
