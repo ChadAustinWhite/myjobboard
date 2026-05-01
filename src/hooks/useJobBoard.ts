@@ -63,6 +63,10 @@ function isAutoAssistSource(source: string): boolean {
     source === "jobicy" ||
     source === "himalayas" ||
     source === "careernest" ||
+    source === "adzuna" ||
+    source === "findwork" ||
+    source === "jobdataapi" ||
+    source === "careerjet" ||
     source === "indeed" ||
     source === "simulated_tip"
   );

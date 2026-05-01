@@ -35,6 +35,9 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           # Optional: Cloudflare Worker base URL wiring Indeed Publisher search (see workers/indeed-proxy/).
           VITE_INDEED_PROXY_URL: ${{ secrets.VITE_INDEED_PROXY_URL }}
+          # Same worker URL enables /adzuna /findwork /jobdata /careerjet (optional `VITE_JOB_EDGE_FEATURES` secret).
+          VITE_JOB_APIS_PROXY_URL: ${{ secrets.VITE_JOB_APIS_PROXY_URL }}
+          VITE_JOB_EDGE_FEATURES: ${{ secrets.VITE_JOB_EDGE_FEATURES }}
         run: |
           npm ci
           npx tsc --noEmit
