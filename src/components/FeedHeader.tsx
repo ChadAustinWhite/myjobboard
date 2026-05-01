@@ -9,6 +9,7 @@ export function FeedHeader({
   syncing,
   syncedLabel,
   subtitle,
+  postingCountLabel,
   onOpenSettings,
 }: {
   title: string;
@@ -18,6 +19,8 @@ export function FeedHeader({
   syncing: boolean;
   syncedLabel: string | null;
   subtitle: string | null;
+  /** Total / visible posting count, e.g. "128 postings" or "12 of 128 postings". */
+  postingCountLabel: string | null;
   onOpenSettings?: () => void;
 }) {
   const initials = profile.name
@@ -60,16 +63,24 @@ export function FeedHeader({
         </div>
       </div>
 
-      {(subtitle || syncedLabel) && (
+      {(subtitle || syncedLabel || postingCountLabel) && (
         <div className="border-t border-neutral-900 px-3 pb-2 pt-1 text-[11px] leading-snug text-neutral-600 sm:px-4 sm:text-[13px] sm:leading-normal">
           <p className="break-words">
+            {postingCountLabel && (
+              <>
+                <span className="tabular-nums font-medium text-neutral-300">{postingCountLabel}</span>
+                {(syncedLabel || subtitle) && (
+                  <span className="mx-1 hidden text-neutral-800 sm:inline">·</span>
+                )}
+              </>
+            )}
             {syncedLabel && (
               <>
                 <span className="text-neutral-400">{syncedLabel}</span>
                 {subtitle && <span className="mx-1 hidden text-neutral-800 sm:inline">·</span>}
               </>
             )}
-            {subtitle && <span className={syncedLabel ? "block sm:inline" : ""}>{subtitle}</span>}
+            {subtitle && <span className={syncedLabel || postingCountLabel ? "block sm:inline" : ""}>{subtitle}</span>}
           </p>
         </div>
       )}
