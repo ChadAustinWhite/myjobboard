@@ -10,7 +10,7 @@ const DEFAULT_URL =
 /** Cap 5 — stay polite to Arbeitnow’s public API; env overrides default depth. */
 const MAX_PAGES = Math.min(
   5,
-  Math.max(1, Number(import.meta.env.VITE_ARBEITNOW_MAX_PAGES ?? 3)),
+  Math.max(1, Number(import.meta.env.VITE_ARBEITNOW_MAX_PAGES ?? 5)),
 );
 
 interface RawArbeitnow {

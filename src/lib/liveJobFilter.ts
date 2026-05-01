@@ -15,13 +15,13 @@ export function passesUxProductDesignFocus(
       t,
     );
   const titleSalvage =
-    /\b(ui\s*[/&]\s*ux|ui\/ux|ux\s*\/\s*ui|\bux\b|senior\s+ux|lead\s+ux|staff\s+ux|principal\s+ux|ux\s+design(?:er)?|ux\s+researcher|user\s+experience|product\s+design(?:er)?|interaction\s+design(?:er)?|experience\s+design(?:er)?|service\s+design(?:er)?|design\s+systems?(?:\s+design(?:er))?)\b/i.test(
+    /\b(ui\s*[/&]\s*ux|ui\/ux|\bui\s+design(?:er|ers)?\b|ux\s*\/\s*ui|\bux\b|senior\s+ux|lead\s+ux|staff\s+ux|principal\s+ux|ux\s+design(?:er)?|ux\s+researcher|user\s+experience|product\s+design(?:er)?|interaction\s+design(?:er)?|experience\s+design(?:er)?|service\s+design(?:er)?|design\s+systems?(?:\s+design(?:er))?)\b/i.test(
       t,
     );
   if (titleHardExclude && !titleSalvage) return false;
 
   const titleStrong =
-    /\b(ui\s*[/&]\s*ux|ui\/ux|ux\s*\/\s*ui|\bux\b|senior\s+ux|lead\s+ux|staff\s+ux|principal\s+ux|ux\s+design(?:er)?|ux\s+researcher|user\s+experience|product\s+design(?:er)?|interaction\s+design(?:er)?|experience\s+design(?:er)?|service\s+design(?:er)?)\b/i.test(
+    /\b(ui\s*[/&]\s*ux|ui\/ux|\bui\s+design(?:er|ers)?\b|ux\s*\/\s*ui|\bux\b|senior\s+ux|lead\s+ux|staff\s+ux|principal\s+ux|ux\s+design(?:er)?|ux\s+researcher|user\s+experience|product\s+design(?:er)?|interaction\s+design(?:er)?|experience\s+design(?:er)?|service\s+design(?:er)?)\b/i.test(
       t,
     ) || /\bdesign\s+systems?(?:\s+design(?:er))?\b/i.test(t);
 
@@ -64,7 +64,9 @@ export function passesBoardIngestUxDesignSignals(
   if (looksLikeNonDesignRoleTitle(t)) return false;
 
   const salvageUxish =
-    /\b(ui\s*[/&]\s*ux|ui\/ux|\bux\b|product\s+design(?:er)?|experience\s+design(?:er)?|interaction\s+design(?:er)?|service\s+design(?:er)?|design\s+systems?(?:\s+design(?:er))?|ux\s+research(?:er)?|user\s+research|\bmarketing\s+(?:experience|lifecycle|growth)\b|\bcx\b\s+design\b)/i.test(t);
+    /\b(ui\s*[/&]\s*ux|ui\/ux|\bui\s+design(?:er|ers)?\b|\bux\b|product\s+design(?:er)?|experience\s+design(?:er)?|interaction\s+design(?:er)?|service\s+design(?:er)?|design\s+systems?(?:\s+design(?:er))?|ux\s+research(?:er)?|user\s+research|\bmarketing\s+(?:experience|lifecycle|growth)\b|\bcx\b\s+design\b)/i.test(
+      t,
+    );
 
   const titleHardExclude =
     /\b(packaging|graphic\s+design(?:er)?|motion\s+design|videographer|\banimator\b|\billustrator\b|\b(?:3d)\s+artist\b|\b(?:visual)\s+designer\b|\bbrand\s+designer\b|video\s+(?:producer|artist))\b/i.test(t);

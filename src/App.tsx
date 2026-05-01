@@ -42,7 +42,7 @@ export default function App() {
         : null;
 
   const subtitle =
-    "US + US-friendly remote only · Arbeitnow · Remotive · Remote OK · Indeed (via your proxy—optional) · auto-refresh (~5 min)";
+    "US + US-friendly remote only · Arbeitnow · Remotive · Remote OK · Jobicy · Indeed (optional proxy) · auto-refresh (~5 min)";
 
   return (
     <div className="mx-auto flex min-h-screen max-w-[990px] border-x border-neutral-800">

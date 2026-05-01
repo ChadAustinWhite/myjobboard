@@ -14,6 +14,9 @@ interface ImportMetaEnv {
   readonly VITE_INDEED_MAX_PAGES?: string;
   readonly VITE_INDEED_RADIUS?: string;
   readonly VITE_INDEED_FROM_AGE?: string;
+  readonly VITE_JOBICY_API_URL?: string;
+  readonly VITE_JOBICY_COUNT?: string;
+  readonly VITE_JOBICY_GEO?: string;
 }
 
 interface ImportMeta {
